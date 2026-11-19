@@ -20,6 +20,11 @@ public class FlightBookingDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (flightBookingRepository.count() > 0) {
+            System.out.println("Seed data already present. Skipping inserts.");
+            return;
+        }
+
         // Available flights (7)
         FlightBooking flight1 = FlightBooking.builder()
                 .flightNumber("FL001")
