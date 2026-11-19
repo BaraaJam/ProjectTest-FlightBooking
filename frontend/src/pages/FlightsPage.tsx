@@ -1,19 +1,26 @@
 import {useEffect, useState} from "react";
-import {getAllFlights} from "../api/flights";
-import type {Flight} from "../api/types";
+import {getAllFlights, getAvailableFlights} from "../api/flights";
+import type {AvailableFlight, Flight} from "../api/types";
 
 export default function FlightsPage() {
     // three states → flights (Flight[], starts []), loading (starts true), error (string, starts "")
-    const [flights, setFlights] = useState<Flight[]>([]);
+    const [flights, setFlights] = useState<(Flight | AvailableFlight)[]>([])
     const [isLoading, setIsLoading] = useState(true);
     const [apiError, setApiError] = useState<string>("");
+    const [filterAvailable, setFilterAvailable] = useState(false);
 
     useEffect(() => {
         const load = async () => {
+            setIsLoading(true);
+            // call getAllFlights() or getAvailableFlights() and save the result in state
             try {
-                // call getAllFlights() and save the result in state
-                const data = await getAllFlights();
-                setFlights(data);
+                if(filterAvailable){
+                    const data = await getAvailableFlights();
+                    setFlights(data);
+                } else {
+                    const data = await getAllFlights();
+                    setFlights(data);
+                }
                 setApiError("")
             } catch (err) {
                 // save the error message (hint: err instanceof Error ? err.message : "...")
@@ -25,7 +32,7 @@ export default function FlightsPage() {
             }
         };
         void load();
-    }, []);
+    }, [filterAvailable]);
 
     // if loading → return <p>Loading...</p>
     if (isLoading) {
@@ -42,15 +49,26 @@ export default function FlightsPage() {
     }
 
     return (
-        <ul className="list-disc">
-            {flights.map((flight) => (
-                <li className="flex gap-4"
-                    key={flight.id}>
-                    <span>Flight Number: {flight.flightNumber}</span>
-                    <span>Destination: {flight.destination}</span>
-                    <span>Status: {flight.status}</span>
-                </li>
-            ))}
-        </ul>
+        <div>
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                    type="checkbox"
+                    checked={filterAvailable}
+                    onChange={(e) => setFilterAvailable(e.target.checked)}
+                    className="h-4.5 w-4.5 rounded-md border border-slate-200 dark:border-slate-700 accent-blue-600 cursor-pointer"
+                />
+                <span className="flex-1 text-sm text-slate-700 dark:text-slate-300">Available Only</span>
+            </label>
+            <ul className="list-disc">
+                {flights.map((flight) => (
+                    <li className="flex gap-4"
+                        key={flight.id}>
+                        <span>Flight Number: {flight.flightNumber}</span>
+                        <span>Destination: {flight.destination}</span>
+                        <span>{"status" in flight && <span>Status: {flight.status}</span>}</span>
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 }
