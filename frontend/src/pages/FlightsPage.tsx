@@ -1,6 +1,8 @@
 import {useEffect, useState} from "react";
 import {getAllFlights, getAvailableFlights} from "../api/flights";
+import  BookingForm  from "../components/BookingForm"
 import type {AvailableFlight, Flight} from "../api/types";
+
 
 export default function FlightsPage() {
     // three states → flights (Flight[], starts []), loading (starts true), error (string, starts "")
@@ -8,13 +10,16 @@ export default function FlightsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [apiError, setApiError] = useState<string>("");
     const [filterAvailable, setFilterAvailable] = useState(false);
+    const [selectedFlight, setSelectedFlight] = useState<Flight | AvailableFlight | null>(null);
+    const [reloadKey, setReloadKey] = useState(0);
+    const [successMessage, setSuccessMessage] = useState("");
 
     useEffect(() => {
         const load = async () => {
             setIsLoading(true);
             // call getAllFlights() or getAvailableFlights() and save the result in state
             try {
-                if(filterAvailable){
+                if (filterAvailable) {
                     const data = await getAvailableFlights();
                     setFlights(data);
                 } else {
@@ -32,7 +37,7 @@ export default function FlightsPage() {
             }
         };
         void load();
-    }, [filterAvailable]);
+    }, [filterAvailable, reloadKey]);
 
     // if loading → return <p>Loading...</p>
     if (isLoading) {
@@ -59,13 +64,37 @@ export default function FlightsPage() {
                 />
                 <span className="flex-1 text-sm text-slate-700 dark:text-slate-300">Available Only</span>
             </label>
+            {successMessage && <p>{successMessage}</p>}
+            {selectedFlight && (
+
+                <BookingForm flight={selectedFlight} onSuccess={(booking) => {
+                    setSelectedFlight(null)
+                    setSuccessMessage(`Booked ${booking.flightNumber} to ${booking.destination}`);
+                    setReloadKey((key) => key + 1);
+                }} onCancel={() => setSelectedFlight(null)} />
+            )}
             <ul className="list-disc">
                 {flights.map((flight) => (
                     <li className="flex gap-4"
                         key={flight.id}>
                         <span>Flight Number: {flight.flightNumber}</span>
                         <span>Destination: {flight.destination}</span>
-                        <span>{"status" in flight && <span>Status: {flight.status}</span>}</span>
+                        {"status" in flight &&
+                            <span>
+                                Status: {flight.status}
+                            </span>
+                        }
+
+                        {(!("status" in flight) || flight.status === "AVAILABLE") &&
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                    onClick={() => {
+                                        setSelectedFlight(flight);
+                                        setSuccessMessage("");
+                                    }}
+                            >
+                                Book
+                            </button>
+                        }
                     </li>
                 ))}
             </ul>
