@@ -15,24 +15,32 @@ import { getAllFlights, getAvailableFlights } from "../api/flights";
 import BookingForm from "../components/BookingForm";
 import Toast from "../components/Toast";
 import { formatDateTime, formatPrice, formatTime } from "../lib/format";
+import { readCache, writeCache } from "../lib/cache";
 import type { AvailableFlight, Flight } from "../api/types";
 
 export default function FlightsPage() {
-    const [flights, setFlights] = useState<(Flight | AvailableFlight)[]>([]);
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [apiError, setApiError] = useState<string>("");
     const [searchParams, setSearchParams] = useSearchParams();
     const filterAvailable = searchParams.get("available") === "true";
+    const cacheKey = filterAvailable ? "flights:available" : "flights:all";
+    const cached = readCache<Flight[] | AvailableFlight[]>(cacheKey);
+
+    const [flights, setFlights] = useState<(Flight | AvailableFlight)[]>(cached ?? []);
+    const [isInitialLoading, setIsInitialLoading] = useState(cached === undefined);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [apiError, setApiError] = useState<string>("");
     const [selectedFlight, setSelectedFlight] = useState<Flight | AvailableFlight | null>(null);
     const [reloadKey, setReloadKey] = useState(0);
     const [successMessage, setSuccessMessage] = useState("");
-    const hasLoaded = useRef(false);
+    const hasLoaded = useRef(cached !== undefined);
 
     useEffect(() => {
         const load = async () => {
+            // Only dim the list if the request is actually slow.
+            // A fast refetch must not blink the content.
+            let slowTimer: number | undefined;
+
             if (hasLoaded.current) {
-                setIsRefreshing(true);
+                slowTimer = window.setTimeout(() => setIsRefreshing(true), 150);
             } else {
                 setIsInitialLoading(true);
             }
@@ -41,22 +49,25 @@ export default function FlightsPage() {
                 if (filterAvailable) {
                     const data = await getAvailableFlights();
                     setFlights(data);
+                    writeCache(cacheKey, data);
                 } else {
                     const data = await getAllFlights();
                     setFlights(data);
+                    writeCache(cacheKey, data);
                 }
                 setApiError("");
             } catch (err) {
                 setApiError(err instanceof Error ? err.message : "Something went wrong");
                 console.error(err);
             } finally {
+                if (slowTimer) window.clearTimeout(slowTimer);
                 hasLoaded.current = true;
                 setIsInitialLoading(false);
                 setIsRefreshing(false);
             }
         };
         void load();
-    }, [filterAvailable, reloadKey]);
+    }, [cacheKey, filterAvailable, reloadKey]);
 
     // keep the URL in sync so the filter survives a refresh and a shared link
     const handleFilterChange = (checked: boolean) => {
@@ -73,9 +84,26 @@ export default function FlightsPage() {
 
     if (isInitialLoading) {
         return (
-            <p className="rounded-md border border-white/60 bg-white/80 px-4 py-3 text-sm text-slate-600 backdrop-blur">
-                Loading flights...
-            </p>
+            <div className="space-y-6">
+                <div>
+                    <div className="h-5 w-40 animate-pulse rounded-md bg-white/70" />
+                    <div className="mt-3 h-8 w-32 animate-pulse rounded-md bg-white/70" />
+                    <div className="mt-2 h-4 w-24 animate-pulse rounded-md bg-white/60" />
+                </div>
+
+                <div className="overflow-hidden rounded-md border border-white/60 bg-white/60 backdrop-blur">
+                    {[0, 1, 2, 3, 4].map((row) => (
+                        <div
+                            key={row}
+                            className="flex items-center gap-4 border-b border-white/40 px-5 py-4 last:border-0"
+                        >
+                            <div className="h-4 w-16 animate-pulse rounded-md bg-slate-200/70" />
+                            <div className="h-4 flex-1 animate-pulse rounded-md bg-slate-200/60" />
+                            <div className="h-8 w-28 animate-pulse rounded-md bg-slate-200/70" />
+                        </div>
+                    ))}
+                </div>
+            </div>
         );
     }
 
