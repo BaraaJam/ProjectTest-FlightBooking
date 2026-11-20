@@ -1,18 +1,8 @@
 import { useState } from "react";
-import {
-    CheckCircle2,
-    Clock,
-    Loader2,
-    Mail,
-    MapPin,
-    Plane,
-    Tag,
-    Ticket,
-    User,
-    XCircle,
-} from "lucide-react";
+import { Loader2, Mail, Ticket, XCircle } from "lucide-react";
 import { cancelFlight, getBookingsByEmail } from "../api/flights";
-import { formatDateTime, formatPrice, formatTime } from "../lib/format";
+import FlightListHeader from "../components/FlightListHeader";
+import FlightRow from "../components/FlightRow";
 import Toast, { type ToastVariant } from "../components/Toast";
 import type { Booking } from "../api/types";
 
@@ -113,94 +103,43 @@ export default function BookingsPage() {
 
             {bookings.length > 0 && (
                 <div className="overflow-hidden rounded-md border border-white/60 bg-linear-to-b from-white/40 to-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_10px_30px_-15px_rgba(15,23,42,0.3)] backdrop-blur-2xl backdrop-saturate-150">
-                    <div className="hidden gap-4 border-b border-white/50 bg-white/30 px-5 py-2.5 text-xs font-medium uppercase tracking-[0.14em] text-slate-500 md:grid md:grid-cols-[240px_1fr_120px_130px]">
-                        <span className="text-center">Flight</span>
-                        <span className="text-center">Destination</span>
-                        <span className="text-center">Price</span>
-                        <span className="text-center">Action</span>
-                    </div>
+                    <FlightListHeader />
 
                     <ul className="divide-y divide-slate-200/60">
                         {bookings.map((booking) => (
-                            <li
+                            <FlightRow
                                 key={booking.id}
-                                className="transition-colors hover:bg-white/55"
-                            >
-                                <div className="grid gap-3 px-5 py-4 md:grid-cols-[240px_1fr_120px_130px] md:items-center md:gap-4">
-                                    <div className="flex items-center gap-2 md:justify-center">
-                                        <Plane
-                                            size={14}
-                                            className="shrink-0 text-slate-400"
-                                            aria-hidden
-                                        />
-                                        <span className="text-sm font-semibold tracking-tight text-slate-900">
-                                            {booking.flightNumber}
-                                        </span>
-                                        <span className="inline-flex w-28 items-center justify-center gap-1 rounded-md bg-emerald-100 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
-                                            <CheckCircle2 size={11} aria-hidden />
-                                            Booked
-                                        </span>
-                                    </div>
-
-                                    <div className="flex flex-col items-start text-left md:items-center md:text-center">
-                                        <p className="flex items-center gap-1.5 text-base font-semibold tracking-tight text-slate-900">
-                                            <MapPin
-                                                size={14}
-                                                className="text-slate-400"
-                                                aria-hidden
-                                            />
-                                            {booking.destination}
-                                        </p>
-                                        <p className="mt-1 flex items-center gap-1.5 text-sm tabular-nums text-slate-600">
-                                            <Clock
-                                                size={13}
-                                                className="text-slate-400"
-                                                aria-hidden
-                                            />
-                                            {formatDateTime(booking.departureTime)}
-                                            <span className="text-slate-400">→</span>
-                                            {formatTime(booking.arrivalTime)}
-                                        </p>
-                                        <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
-                                            <User
-                                                size={12}
-                                                className="text-slate-400"
-                                                aria-hidden
-                                            />
-                                            {booking.passengerName}
-                                        </p>
-                                    </div>
-
-                                    <p className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-slate-900 md:justify-center">
-                                        <Tag size={13} className="text-slate-400" aria-hidden />
-                                        {formatPrice(booking.price)}
-                                    </p>
-
-                                    <div className="md:text-center">
-                                        <button
-                                            onClick={() => handleCancel(booking)}
-                                            disabled={cancellingId === booking.id}
-                                            className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-rose-200 bg-white/70 px-4 py-2 text-[13px] font-semibold text-rose-700 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 md:w-28"
-                                        >
-                                            {cancellingId === booking.id ? (
-                                                <>
-                                                    <Loader2
-                                                        size={14}
-                                                        className="animate-spin"
-                                                        aria-hidden
-                                                    />
-                                                    Cancel
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <XCircle size={14} aria-hidden />
-                                                    Cancel
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            </li>
+                                flightNumber={booking.flightNumber}
+                                destination={booking.destination}
+                                departureTime={booking.departureTime}
+                                arrivalTime={booking.arrivalTime}
+                                price={booking.price}
+                                status={booking.status}
+                                passengerName={booking.passengerName}
+                                action={
+                                    <button
+                                        onClick={() => handleCancel(booking)}
+                                        disabled={cancellingId === booking.id}
+                                        className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-rose-200 bg-white/70 px-4 py-2 text-[13px] font-semibold text-rose-700 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 md:w-28"
+                                    >
+                                        {cancellingId === booking.id ? (
+                                            <>
+                                                <Loader2
+                                                    size={14}
+                                                    className="animate-spin"
+                                                    aria-hidden
+                                                />
+                                                Cancel
+                                            </>
+                                        ) : (
+                                            <>
+                                                <XCircle size={14} aria-hidden />
+                                                Cancel
+                                            </>
+                                        )}
+                                    </button>
+                                }
+                            />
                         ))}
                     </ul>
                 </div>

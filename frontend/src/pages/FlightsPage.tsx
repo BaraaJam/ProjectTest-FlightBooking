@@ -1,20 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-    CheckCircle2,
-    ChevronUp,
-    Clock,
-    Lock,
-    MapPin,
-    Plane,
-    PlaneTakeoff,
-    Tag,
-    Ticket,
-} from "lucide-react";
+import { ChevronUp, Lock, Plane, PlaneTakeoff, Ticket } from "lucide-react";
 import { getAllFlights, getAvailableFlights } from "../api/flights";
 import BookingForm from "../components/BookingForm";
+import FlightListHeader from "../components/FlightListHeader";
+import FlightRow from "../components/FlightRow";
 import Toast from "../components/Toast";
-import { formatDateTime, formatPrice, formatTime } from "../lib/format";
 import { readCache, writeCache } from "../lib/cache";
 import type { AvailableFlight, Flight } from "../api/types";
 
@@ -173,12 +164,7 @@ export default function FlightsPage() {
                         isRefreshing ? "opacity-60" : "opacity-100"
                     }`}
                 >
-                    <div className="hidden gap-4 border-b border-white/50 bg-white/30 px-5 py-2.5 text-xs font-medium uppercase tracking-[0.14em] text-slate-500 md:grid md:grid-cols-[240px_1fr_120px_130px]">
-                        <span className="text-center">Flight</span>
-                        <span className="text-center">Destination</span>
-                        <span className="text-center">Price</span>
-                        <span className="text-center">Action</span>
-                    </div>
+                    <FlightListHeader />
 
                     <ul
                         key={filterAvailable ? "available" : "all"}
@@ -190,121 +176,73 @@ export default function FlightsPage() {
                             const isOpen = selectedFlight?.id === flight.id;
 
                             return (
-                                <li
+                                <FlightRow
                                     key={flight.id}
-                                    className="transition-colors hover:bg-white/55"
-                                >
-                                    <div className="grid gap-3 px-5 py-4 md:grid-cols-[240px_1fr_120px_130px] md:items-center md:gap-4">
-                                        <div className="flex items-center gap-2 md:justify-center">
-                                            <Plane
-                                                size={14}
-                                                className="shrink-0 text-slate-400"
-                                                aria-hidden
-                                            />
-                                            <span className="text-sm font-semibold tracking-tight text-slate-900">
-                                                {flight.flightNumber}
-                                            </span>
-                                            <span
-                                                className={`inline-flex w-28 items-center justify-center gap-1 rounded-md py-1 text-[10px] font-semibold uppercase tracking-wide ${
-                                                    canBook
-                                                        ? "bg-emerald-100 text-emerald-700"
-                                                        : "bg-slate-200 text-slate-500"
-                                                }`}
-                                            >
-                                                {canBook ? (
-                                                    <CheckCircle2 size={11} aria-hidden />
-                                                ) : (
-                                                    <Lock size={10} aria-hidden />
-                                                )}
-                                                {canBook ? "Available" : "Booked"}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex flex-col items-start text-left md:items-center md:text-center">
-                                            <p className="flex items-center gap-1.5 text-base font-semibold tracking-tight text-slate-900">
-                                                <MapPin
-                                                    size={14}
-                                                    className="text-slate-400"
-                                                    aria-hidden
-                                                />
-                                                {flight.destination}
-                                            </p>
-                                            <p className="mt-1 flex items-center gap-1.5 text-sm tabular-nums text-slate-600">
-                                                <Clock
-                                                    size={13}
-                                                    className="text-slate-400"
-                                                    aria-hidden
-                                                />
-                                                {formatDateTime(flight.departureTime)}
-                                                <span className="text-slate-400">→</span>
-                                                {formatTime(flight.arrivalTime)}
-                                            </p>
-                                        </div>
-
-                                        <p className="flex items-center gap-1.5 text-sm font-semibold tabular-nums text-slate-900 md:justify-center">
-                                            <Tag size={13} className="text-slate-400" aria-hidden />
-                                            {formatPrice(flight.price)}
-                                        </p>
-
-                                        <div className="md:text-center">
-                                            <button
-                                                disabled={!canBook}
-                                                onClick={() => {
-                                                    setSuccessMessage("");
-                                                    setSelectedFlight((current) =>
-                                                        current?.id === flight.id ? null : flight
-                                                    );
-                                                }}
-                                                className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-slate-900 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 md:w-28"
-                                            >
-                                                {isOpen ? (
-                                                    <>
-                                                        <ChevronUp size={14} aria-hidden />
-                                                        Close
-                                                    </>
-                                                ) : canBook ? (
-                                                    <>
-                                                        <Ticket size={14} aria-hidden />
-                                                        Book
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Lock size={12} aria-hidden />
-                                                        Booked
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/*
-                                        The form stays mounted so the collapse can animate.
-                                        `inert` keeps the hidden fields out of the tab order.
-                                    */}
-                                    <div
-                                        className={`grid transition-all duration-300 ease-out ${
-                                            isOpen
-                                                ? "grid-rows-[1fr] opacity-100"
-                                                : "grid-rows-[0fr] opacity-0"
-                                        }`}
-                                    >
-                                        <div className="overflow-hidden">
-                                            <div className="px-5 pb-5" inert={!isOpen}>
-                                                <BookingForm
-                                                    flight={flight}
-                                                    onSuccess={(booking) => {
-                                                        setSelectedFlight(null);
-                                                        setSuccessMessage(
-                                                            `Booked ${booking.flightNumber} to ${booking.destination}`
-                                                        );
-                                                        setReloadKey((key) => key + 1);
-                                                    }}
-                                                    onCancel={() => setSelectedFlight(null)}
-                                                />
+                                    flightNumber={flight.flightNumber}
+                                    destination={flight.destination}
+                                    departureTime={flight.departureTime}
+                                    arrivalTime={flight.arrivalTime}
+                                    price={flight.price}
+                                    status={status}
+                                    action={
+                                        <button
+                                            disabled={!canBook}
+                                            onClick={() => {
+                                                setSuccessMessage("");
+                                                setSelectedFlight((current) =>
+                                                    current?.id === flight.id ? null : flight
+                                                );
+                                            }}
+                                            className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-slate-900 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 md:w-28"
+                                        >
+                                            {isOpen ? (
+                                                <>
+                                                    <ChevronUp size={14} aria-hidden />
+                                                    Close
+                                                </>
+                                            ) : canBook ? (
+                                                <>
+                                                    <Ticket size={14} aria-hidden />
+                                                    Book
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Lock size={12} aria-hidden />
+                                                    Booked
+                                                </>
+                                            )}
+                                        </button>
+                                    }
+                                    footer={
+                                        /*
+                                            The form stays mounted so the collapse can animate.
+                                            `inert` keeps the hidden fields out of the tab order.
+                                        */
+                                        <div
+                                            className={`grid transition-all duration-300 ease-out ${
+                                                isOpen
+                                                    ? "grid-rows-[1fr] opacity-100"
+                                                    : "grid-rows-[0fr] opacity-0"
+                                            }`}
+                                        >
+                                            <div className="overflow-hidden">
+                                                <div className="px-5 pb-5" inert={!isOpen}>
+                                                    <BookingForm
+                                                        flight={flight}
+                                                        onSuccess={(booking) => {
+                                                            setSelectedFlight(null);
+                                                            setSuccessMessage(
+                                                                `Booked ${booking.flightNumber} to ${booking.destination}`
+                                                            );
+                                                            setReloadKey((key) => key + 1);
+                                                        }}
+                                                        onCancel={() => setSelectedFlight(null)}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
+                                    }
+                                />
                             );
                         })}
                     </ul>
