@@ -169,7 +169,7 @@ export default function FlightsPage() {
                 </p>
             ) : (
                 <div
-                    className={`overflow-hidden rounded-md border border-white/60 bg-linear-to-b from-white/70 to-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_10px_30px_-15px_rgba(15,23,42,0.3)] backdrop-blur-2xl backdrop-saturate-150 transition-opacity duration-200 ${
+                    className={`overflow-hidden rounded-md border border-white/60 bg-linear-to-b from-white/40 to-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_10px_30px_-15px_rgba(15,23,42,0.3)] backdrop-blur-2xl backdrop-saturate-150 transition-opacity duration-200 ${
                         isRefreshing ? "opacity-60" : "opacity-100"
                     }`}
                 >
@@ -192,7 +192,7 @@ export default function FlightsPage() {
                             return (
                                 <li
                                     key={flight.id}
-                                    className="transition-colors hover:bg-white/40"
+                                    className="transition-colors hover:bg-white/55"
                                 >
                                     <div className="grid gap-3 px-5 py-4 md:grid-cols-[240px_1fr_120px_130px] md:items-center md:gap-4">
                                         <div className="flex items-center gap-2 md:justify-center">
@@ -207,8 +207,8 @@ export default function FlightsPage() {
                                             <span
                                                 className={`inline-flex w-28 items-center justify-center gap-1 rounded-md py-1 text-[10px] font-semibold uppercase tracking-wide ${
                                                     canBook
-                                                        ? "bg-emerald-50 text-emerald-700"
-                                                        : "bg-slate-100 text-slate-500"
+                                                        ? "bg-emerald-100 text-emerald-700"
+                                                        : "bg-slate-200 text-slate-500"
                                                 }`}
                                             >
                                                 {canBook ? (

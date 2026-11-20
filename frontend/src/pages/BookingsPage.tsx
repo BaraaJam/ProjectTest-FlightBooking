@@ -78,7 +78,7 @@ export default function BookingsPage() {
 
             <form
                 onSubmit={handleSearch}
-                className="flex flex-wrap gap-2 rounded-md border border-white/60 bg-linear-to-b from-white/70 to-white/45 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_10px_30px_-15px_rgba(15,23,42,0.3)] backdrop-blur-2xl backdrop-saturate-150"
+                className="flex flex-wrap gap-2 rounded-md border border-white/60 bg-linear-to-b from-white/40 to-white/45 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_10px_30px_-15px_rgba(15,23,42,0.3)] backdrop-blur-2xl backdrop-saturate-150"
             >
                 <input
                     type="email"
@@ -112,7 +112,7 @@ export default function BookingsPage() {
             )}
 
             {bookings.length > 0 && (
-                <div className="overflow-hidden rounded-md border border-white/60 bg-linear-to-b from-white/70 to-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_10px_30px_-15px_rgba(15,23,42,0.3)] backdrop-blur-2xl backdrop-saturate-150">
+                <div className="overflow-hidden rounded-md border border-white/60 bg-linear-to-b from-white/40 to-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_10px_30px_-15px_rgba(15,23,42,0.3)] backdrop-blur-2xl backdrop-saturate-150">
                     <div className="hidden gap-4 border-b border-white/50 bg-white/30 px-5 py-2.5 text-xs font-medium uppercase tracking-[0.14em] text-slate-500 md:grid md:grid-cols-[240px_1fr_120px_130px]">
                         <span className="text-center">Flight</span>
                         <span className="text-center">Destination</span>
@@ -124,7 +124,7 @@ export default function BookingsPage() {
                         {bookings.map((booking) => (
                             <li
                                 key={booking.id}
-                                className="transition-colors hover:bg-white/40"
+                                className="transition-colors hover:bg-white/55"
                             >
                                 <div className="grid gap-3 px-5 py-4 md:grid-cols-[240px_1fr_120px_130px] md:items-center md:gap-4">
                                     <div className="flex items-center gap-2 md:justify-center">
@@ -136,7 +136,7 @@ export default function BookingsPage() {
                                         <span className="text-sm font-semibold tracking-tight text-slate-900">
                                             {booking.flightNumber}
                                         </span>
-                                        <span className="inline-flex w-28 items-center justify-center gap-1 rounded-md bg-emerald-50 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                                        <span className="inline-flex w-28 items-center justify-center gap-1 rounded-md bg-emerald-100 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
                                             <CheckCircle2 size={11} aria-hidden />
                                             Booked
                                         </span>

@@ -37,7 +37,7 @@ export default function BookingForm({ flight, onSuccess, onCancel }: BookingForm
     return (
         <form
             onSubmit={handleSubmit}
-            className="rounded-md border border-slate-200 bg-white p-5"
+            className="rounded-md border border-slate-200 bg-white/50 p-5"
         >
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
                 Booking
