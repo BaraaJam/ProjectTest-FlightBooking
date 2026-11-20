@@ -289,7 +289,7 @@ export default function FlightsPage() {
                                         }`}
                                     >
                                         <div className="overflow-hidden">
-                                            <div className="px-5 pb-5" inert={!isOpen} aria-hidden={!isOpen}>
+                                            <div className="px-5 pb-5" inert={!isOpen}>
                                                 <BookingForm
                                                     flight={flight}
                                                     onSuccess={(booking) => {

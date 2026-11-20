@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
 export type ToastVariant = "success" | "error";
@@ -39,7 +40,7 @@ export default function Toast({ message, variant = "success", onClose }: ToastPr
         return () => window.clearTimeout(timer);
     }, [isPaused, isVisible, variant]);
 
-    return (
+    return createPortal(
         <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
             <div
                 role="status"
@@ -71,6 +72,7 @@ export default function Toast({ message, variant = "success", onClose }: ToastPr
                     <X size={14} aria-hidden />
                 </button>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
