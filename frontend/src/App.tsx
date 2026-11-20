@@ -1,18 +1,14 @@
-import { Link, Routes, Route } from 'react-router-dom';
-import FlightsPage from './pages/FlightsPage';
-import BookingsPage from './pages/BookingsPage';
+import { Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import FlightsPage from "./pages/FlightsPage";
+import BookingsPage from "./pages/BookingsPage";
 
 function App() {
     return (
-        <div>
-            {/* Navigation Bar */}
-            <nav style={{ display: 'flex', gap: '1rem', padding: '1rem', borderBottom: '1px solid #ccc' }}>
-                <Link to="/">Flights</Link>
-                <Link to="/bookings">My bookings</Link>
-            </nav>
+        <div className="min-h-screen text-slate-900">
+            <Navbar />
 
-            {/* Page Routes */}
-            <main style={{ padding: '1rem' }}>
+            <main className="mx-auto w-full max-w-6xl px-4 py-8">
                 <Routes>
                     <Route path="/" element={<FlightsPage />} />
                     <Route path="/bookings" element={<BookingsPage />} />
